@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <title>Thim sách vào thư ziện</title>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyAGA76Ts_51KAFItYa-HrwV26gHxbp69Ws",
+      authDomain: "mybiglibrary-f9988.firebaseapp.com",
+      projectId: "mybiglibrary-f9988",
+      storageBucket: "mybiglibrary-f9988.firebasestorage.app",
+      messagingSenderId: "841203291050",
+      appId: "1:841203291050:web:1e061841630d5b5d63d1d3",
+      measurementId: "G-BBKVYTGTWY"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    document.addEventListener("DOMContentLoaded", () => {
+      const form = document.getElementById("book-form");
+      form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        const title = form.title.value.trim();
+        const author = form.author.value.trim();
+        const category = form.category.value.trim();
+        const description = form.description.value.trim();
+        const location = form.location.value.trim();
+        const quantity = form.quantity.value.trim();
+        const keywordsRaw = form.keywords.value.trim();
+        const keywords = keywordsRaw.split(",").map(k => k.trim().toLowerCase()).filter(Boolean);
+
+        if (!title || !author || !category || !description || !location|| !quantity || keywords.length === 0) {
+          alert("Vui lòng điền đầy đủ thông tin và từ khóa.");
+          return;
+        }
+
+        try {
+          await addDoc(collection(db, "books"), {
+            title,
+            author,
+            category,
+            description,
+            location,
+            quantity,
+            keywords
+          });
+          alert("👎 Thêm sách thành công!");
+          form.reset();
+        } catch (error) {
+          console.error("❌ Lỗi khi thêm sách:", error);
+          alert("⚠️ Lỗi khi thêm sách. Kiểm tra console.");
+        }
+      });
+    });
+  </script>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      min-height: 100vh;
+      background: #1838b9;
+      margin: 0;
+    }
+
+    .center-container {
+      display: flex;
+      flex-direction: column;
+      align-items:left;      /* Căn giữa ngang */
+      justify-content:left;  /* Căn giữa dọc */
+      min-height: 100vh;
+      padding: 0 30px;
+    }
+    h1 {
+      color: #000000;
+    }
+    form {
+      max-width: 500px;
+      background: rgb(255, 153, 0);
+      padding: 25px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    label {
+      display: block;
+      margin-top: 15px;
+      font-weight: bold;
+    }
+    input, textarea {
+      width: 100%;
+      padding: 8px;
+      margin-top: 5px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+    }
+    button {
+      margin-top: 20px;
+      background: #72470e;
+      color: white;
+      border: none;
+      padding: 10px 18px;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #a03200;
+    }
+    small {
+      font-size: 0.9em;
+      color: #000000;
+    }
+  </style>
+</head>
+<body>
+  <div class="center-container">
+    <h1>📚 Thêm sách mới</h1>
+    <form id="book-form">
+      <label for="title">Tên sách:</label>
+      <input type="text" id="title" required>
+
+      <label for="author">Tác giả:</label>
+      <input type="text" id="author" required>
+
+      <label for="category">Thể loại:</label>
+      <input type="text" id="category" required>
+
+      <label for="description">Mô tả:</label>
+      <textarea id="description" rows="4" required></textarea>
+
+      <label for="location">Vị trí:</label>
+      <input type="text" id="location" required>
+
+      <label for="quantity">Số lượng trên kệ:</label>
+      <input type="text" id="quantity" required>
+
+      <label for="keywords">Từ khóa (phân cách bằng dấu phẩy):</label>
+      <input type="text" id="keywords" placeholder="vd: du học, học bổng, sinh viên" required>
+      <small>Nhập tối đa ~10 từ khóa liên quan đến sách.</small>
+
+      <button type="submit">➕ Thêm sách</button>
+    </form>
+  </div>
+  <!-- Nhúng Chatbot: Bắt đầu -->
+  <button id="chatbot-toggler">
+    <canvas id="chatbot-lottie-canvas" style="width: 98px; height: 98px;"></canvas>
+    <span class="material-symbols-rounded">close</span>
+  </button>
+  <div class="chatbot-popup">
+    <div class="chat-header">
+      <div class="header-info">
+        <svg class="chatbot-logo" xmlns="http://www.w3.org/2000/svg" width="50" height="50" viewBox="0 0 1024 1024">
+          <path d="M738.3 287.6H285.7c-59 0-106.8 47.8-106.8 106.8v303.1c0 59 47.8 106.8 106.8 106.8h81.5v111.1c0 .7.8 1.1 1.4.7l166.9-110.6 41.8-.8h117.4l43.6-.4c59 0 106.8-47.8 106.8-106.8V394.5c0-59-47.8-106.9-106.8-106.9zM351.7 448.2c0-29.5 23.9-53.5 53.5-53.5s53.5 23.9 53.5 53.5-23.9 53.5-53.5 53.5-53.5-23.9-53.5-53.5zm157.9 267.1c-67.8 0-123.8-47.5-132.3-109h264.6c-8.6 61.5-64.5 109-132.3 109zm110-213.7c-29.5 0-53.5-23.9-53.5-53.5s23.9-53.5 53.5-53.5 53.5 23.9 53.5 53.5-23.9 53.5-53.5 53.5zM867.2 644.5V453.1h26.5c19.4 0 35.1 15.7 35.1 35.1v121.1c0 19.4-15.7 35.1-35.1 35.1h-26.5zM95.2 609.4V488.2c0-19.4 15.7-35.1 35.1-35.1h26.5v191.3h-26.5c-19.4 0-35.1-15.7-35.1-35.1zM561.5 149.6c0 23.4-15.6 43.3-36.9 49.7v44.9h-30v-44.9c-21.4-6.5-36.9-26.3-36.9-49.7 0-28.6 23.3-51.9 51.9-51.9s51.9 23.3 51.9 51.9z"></path>
+        </svg>
+        <h2 class="logo-text">Librarybot</h2>
+      </div>
+      <button id="close-chatbot" class="material-symbols-rounded">keyboard_arrow_down</button>
+    </div>
+    <div class="chat-body">
+      <div class="message bot-message">
+        <svg class="bot-avatar" xmlns="http://www.w3.org/2000/svg" width="50" height="50" viewBox="0 0 1024 1024">
+          <path d="M738.3 287.6H285.7c-59 0-106.8 47.8-106.8 106.8v303.1c0 59 47.8 106.8 106.8 106.8h81.5v111.1c0 .7.8 1.1 1.4.7l166.9-110.6 41.8-.8h117.4l43.6-.4c59 0 106.8-47.8 106.8-106.8V394.5c0-59-47.8-106.9-106.8-106.9zM351.7 448.2c0-29.5 23.9-53.5 53.5-53.5s53.5 23.9 53.5 53.5-23.9 53.5-53.5 53.5-53.5-23.9-53.5-53.5zm157.9 267.1c-67.8 0-123.8-47.5-132.3-109h264.6c-8.6 61.5-64.5 109-132.3 109zm110-213.7c-29.5 0-53.5-23.9-53.5-53.5s23.9-53.5 53.5-53.5 53.5 23.9 53.5 53.5-23.9 53.5-53.5 53.5zM867.2 644.5V453.1h26.5c19.4 0 35.1 15.7 35.1 35.1v121.1c0 19.4-15.7 35.1-35.1 35.1h-26.5zM95.2 609.4V488.2c0-19.4 15.7-35.1 35.1-35.1h26.5v191.3h-26.5c-19.4 0-35.1-15.7-35.1-35.1zM561.5 149.6c0 23.4-15.6 43.3-36.9 49.7v44.9h-30v-44.9c-21.4-6.5-36.9-26.3-36.9-49.7 0-28.6 23.3-51.9 51.9-51.9s51.9 23.3 51.9 51.9z"></path>
+        </svg>
+        <div class="message-text">
+          Xin chào 👋 <br />
+          Mình có thể giúp được gì cho bạn?
+        </div>
+      </div>
+    </div>
+    <div class="chat-footer">
+      <form action="#" class="chat-form">
+        <textarea placeholder="Message..." class="message-input" required></textarea>
+        <div class="chat-controls">
+          <button type="button" id="emoji-picker" class="material-symbols-rounded">sentiment_satisfied</button>
+          <div class="file-upload-wrapper">
+            <input type="file" accept="images/*" id="file-input" hidden>
+            <button type="button" id="file-upload" class="material-symbols-rounded">attach_file</button>
+          </div>
+          <button type="submit" id="send-message" class="material-symbols-rounded">arrow_upward</button>
+        </div>
+      </form>
+    </div>
+  </div>
+  <!-- Nhúng Chatbot: Kết thúc -->
+</body>
+<!-- Nhúng các link/script cần thiết cho chatbot -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@48,400,0,0&family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@48,400,1,0" />
+<link rel="stylesheet" href="style.css"/>
+<script src="https://cdn.jsdelivr.net/npm/emoji-mart@latest/dist/browser.js"></script>
+<script type="module">
+  import { DotLottie } from "https://cdn.jsdelivr.net/npm/@lottiefiles/dotlottie-web/+esm";
+  const dotLottie = new DotLottie({
+    autoplay: true,
+    loop: true,
+    canvas: document.getElementById("chatbot-lottie-canvas"),
+    src: "robot.json",
+  });
+  dotLottie.addEventListener('ready', () => {
+    const canvas = document.getElementById("chatbot-lottie-canvas");
+    canvas.style.background = 'transparent';
+    canvas.style.borderRadius = '50%';
+    canvas.style.overflow = 'hidden';
+  });
+</script>
+<script type="module" src="firebase-config.js"></script>
+<script type="module" src="script.js"></script>
